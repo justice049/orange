@@ -1,0 +1,5 @@
+﻿  SeqList.c
+D:\code\顺序表\顺序表\SeqList.c(1,1): warning C4828: 文件包含在偏移 0x8b1 处开始的字符，该字符在当前源字符集中无效(代码页 936)。
+  test.c
+  正在生成代码...
+  顺序表.vcxproj -> D:\code\顺序表\x64\Debug\顺序表.exe
