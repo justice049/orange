@@ -1,0 +1,3 @@
+﻿  Stu.cpp
+D:\code\学生管理\学生管理\Stu.cpp(265): warning C4715: “Quick_Sort”: 不是所有的控件路径都返回值
+  学生管理.vcxproj -> D:\code\学生管理\x64\Debug\学生管理.exe
