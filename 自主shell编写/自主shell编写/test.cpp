@@ -5,19 +5,15 @@
 #include<sys/types.h>
 #include<errno.h>
 #include<sys/wait.h>
-#define SkipPath(p) do{ \
-p = strlen(p) - 1; \
-while (*p != '/')
-{
-	p--;
-}
-}while(0)
+
+#define SkipPath(p) do{ p += (strlen(p) - 1); while (*p != '/')p--;}while(0)
 
 #define SIZE 512
 #define ZERO '\0'
 #define SEP " "
 #define NUM 32
 
+int lastcode = 1;
 char cwd[SIZE * 2];
 char* gArgv[NUM];
 
@@ -44,10 +40,9 @@ void Cd()
 		path = Home();
 	}
 	chdir(path);
-
 	char temp[SIZE * 2];
 	getcwd(temp, sizeof(temp));
-	sprintf(cwd, sizeof(cwd), "PWD=%s", temp);
+	snprintf(cwd, sizeof(cwd), "PWD=%s", temp);
 	putenv(cwd);
 }
 
@@ -87,7 +82,9 @@ void MakeCommandLine()
 	const char* username = GetUserName();
 	const char* hostname = GetHostName();
 	const char* cwd = GetCwd();
-	snprintf(line, sizeof(line), "[%s@%s %s]#", username, hostname, cwd);
+
+	SkipPath(cwd);
+	snprintf(line, sizeof(line), "[%s@%s %s]#", username, hostname, strlen(cwd) == 1 ? "/" : cwd + 1);
 	printf("%s", line);
 	fflush(stdout);
 }
@@ -129,7 +126,11 @@ void ExecuteCommand()
 		pid_t rid = waitpid(id, &status, 0);
 		if (rid > 0)
 		{
-
+			lastcode = WEXITSTATUS(status);
+			if (lastcode != 0)
+			{
+				printf("%s:%s:%d\n", gArgv[0], strerror(lastcode), lastcode);
+			}
 		}
 	}
 }
@@ -142,6 +143,12 @@ int CheckBuildin()
 	{
 		yes = 1;
 		Cd();
+	}
+	else if (strcmp(enter_cmd, "echo") == 0 && strcmp(gArgv[1], "$?") == 0)
+	{
+		yes = 1;
+		printf("%d\n", lastcode);
+		lastcode = 0;
 	}
 	return yes;
 }
