@@ -3,6 +3,9 @@
 #include<string.h>
 #include<stdlib.h>
 #include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+#include<ctype.h>
 #include<errno.h>
 #include<sys/wait.h>
 
@@ -12,6 +15,22 @@
 #define ZERO '\0'
 #define SEP " "
 #define NUM 32
+
+#define None_REDIR 0
+#define In_REDIR 1
+#define Out_REDIR 2
+#define App_REDIR 3
+
+#define SkipSpace(usercommand,pos) do{\
+	while (1){\
+		if(isspace(usercommand[pos]))\
+			pos++;\
+		else break;\
+	}\
+}while (0)
+
+int redir_type = None_REDIR;
+char* filename = NULL;
 
 int lastcode = 1;
 char cwd[SIZE * 2];
@@ -117,6 +136,28 @@ void ExecuteCommand()
 	}
 	else if (id == 0)
 	{
+		if (filename != NULL)
+		{
+			if (redir_type == In_REDIR)
+			{
+				int fd = open(filename, O_RDONLY);
+				dup2(fd, 0);
+			}
+			else if (redir_type == Out_REDIR)
+			{
+				int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
+				dup2(fd, 1);
+			}
+			else if (redir_type == App_REDIR)
+			{
+				int fd = open(filename, O_WRONLY | O_CREAT | O_APPEND);
+				dup2(fd, 1);
+			}
+			else
+			{
+
+			}
+		}
 		execvp(gArgv[0], gArgv);
 		exit(errno);
 	}
@@ -153,11 +194,52 @@ int CheckBuildin()
 	return yes;
 }
 
+void CheckRedir(char usercommand[])
+{
+	int pos = 0;
+	int end = strlen(usercommand);
+	while (pos<end)
+	{
+		if (usercommand[pos] == '>')
+		{
+			if (usercommand[pos + 1] == '>')
+			{
+				usercommand[pos++] = 0;
+				pos++;
+				redir_type = App_REDIR;
+				SkipSpace(usercommand, pos);
+				filename = usercommand + pos;
+			}
+			else
+			{
+				usercommand[pos++] = 0;
+				pos++;
+				redir_type = In_REDIR;
+				SkipSpace(usercommand, pos);
+				filename = usercommand + pos;
+			}
+		}
+		else if (usercommand[pos] == '<')
+		{
+			usercommand[pos++] = 0;
+			redir_type = In_REDIR;
+			SkipSpace(usercommand,pos);
+			filename = usercommand + pos;
+		}
+		else
+		{
+			pos++;
+		}
+	}
+}
+
 int main()
 {
 	int quit = 0;
 	while (!quit)
 	{
+		redir_type = None_REDIR;
+		filename = NULL;
 		MakeCommandLine();
 
 		char usercommand[SIZE];
@@ -166,6 +248,8 @@ int main()
 		{
 			return 1;
 		}
+
+		CheckRedir(usercommand);
 
 		splitCommand(usercommand, sizeof(usercommand));
 
