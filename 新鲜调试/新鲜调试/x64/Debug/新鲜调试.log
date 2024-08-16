@@ -1,0 +1,8 @@
+﻿  test.cpp
+D:\code\新鲜调试\新鲜调试\test.cpp(65,17): warning C4477: “fprintf”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“int *”
+D:\code\新鲜调试\新鲜调试\test.cpp(65,17): warning C4313: "fprintf": 格式字符串中的 "%d" 与类型为 "int *" 的参数 1 冲突
+D:\code\新鲜调试\新鲜调试\test.cpp(70,17): warning C4477: “fprintf”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“int *”
+D:\code\新鲜调试\新鲜调试\test.cpp(70,17): warning C4313: "fprintf": 格式字符串中的 "%d" 与类型为 "int *" 的参数 1 冲突
+D:\code\新鲜调试\新鲜调试\test.cpp(75,17): warning C4477: “fprintf”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“int *”
+D:\code\新鲜调试\新鲜调试\test.cpp(75,17): warning C4313: "fprintf": 格式字符串中的 "%d" 与类型为 "int *" 的参数 1 冲突
+  新鲜调试.vcxproj -> D:\code\新鲜调试\x64\Debug\新鲜调试.exe
